@@ -11,7 +11,11 @@ On Windows, tapping a touch screen moves the mouse cursor to where you touched. 
 - Mouse-only use is unaffected.
 
 ## How it works
-Windows marks mouse events that were generated from touch or pen input with the signature `0xFF515700` in the event's extra info. The script installs a low-level mouse hook. It remembers the cursor position while you use the mouse, recognises touch-generated events, and calls `SetCursorPos` to return the cursor after the touch ends. It is per-monitor DPI aware, so it works across screens with different scaling.
+Two detectors run together:
+- A low-level mouse hook catches mouse events Windows synthesizes from touch (extra-info signature `0xFF515700`).
+- A raw input listener registers for the touch digitizer (HID usage page `0x0D`, usage `0x04`), catching touches some apps take as pointer input without ever generating a mouse event.
+
+The script only updates its saved position while it sees real (non-injected) mouse movement. After a touch, once there's no touch input for 200 ms and no button is held, it calls `SetCursorPos` to return the cursor. It is per-monitor DPI aware, so it works across screens with different scaling.
 
 ## Install
 1. Install [AutoHotkey v2](https://www.autohotkey.com/) (or `winget install AutoHotkey.AutoHotkey`).
